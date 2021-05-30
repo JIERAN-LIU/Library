@@ -1,0 +1,15 @@
+{{ object.title }}
+{{ object.authors_name }}
+{{ object.authors.id }}
+{{ object.description }}
+{{ object.publication_date }}
+{{ object.publisher_name }}
+{{ object.publisher.id }}
+{{ object.isbn_10 }}
+{{ object.isbn_13 }}
+{{ object.binding }}
+{{ object.language }}
+{{ object.subject }}
+{{ object.toc }}
+{{ object.call_number }}
+{{ object.id }}

@@ -1,0 +1,14 @@
+wheel==0.36.2
+PyMySQL==1.0.2
+numpy==1.20.3
+setuptools_scm==6.0.1
+Django==2.2.23
+pandas==1.2.4
+scikit_surprise==1.1.1
+django_haystack==3.0
+djangorestframework==3.12.4
+drf-yasg==1.20.0
+drf-haystack==1.8.10
+django-filter==2.4.0
+whoosh==2.7.4
+uwsgi==2.0.19.1
