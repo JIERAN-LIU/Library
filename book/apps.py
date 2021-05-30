@@ -1,5 +1,4 @@
 from django.apps import AppConfig
-#test
-
+#This is a test for the github
 class BookConfig(AppConfig):
     name = 'book'
