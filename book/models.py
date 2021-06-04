@@ -1,4 +1,4 @@
-## Create your models here.st
+# Create your models here.
 
 from django.db.models import Model, CharField, EmailField, URLField, IntegerField, TextField, \
     ForeignKey, DO_NOTHING, FloatField, ManyToManyField, CASCADE, DateField
@@ -60,11 +60,17 @@ class Book(AbstractLibraryBaseModel):
 
     @property
     def publisher_name(self):
-        return self.publisher.name
+        publisher = self.publisher
+        if not publisher:
+            return ""
+        return publisher.name
 
     @property
     def authors_name(self):
-        return ", ".join([author.name for author in self.authors.all()])
+        authors = self.authors
+        if not authors:
+            return ""
+        return ", ".join([author.name for author in authors.all()])
 
     class Meta:
         db_table = 'library_book'
@@ -72,7 +78,7 @@ class Book(AbstractLibraryBaseModel):
 
 class BookCopy(AbstractLibraryBaseModel):
     book = ForeignKey(Book, verbose_name='Book', on_delete=CASCADE, related_name='copies',
-                       null=False)
+                      null=False)
     barcode = CharField('Barcode', max_length=100, unique=True)
     status = CharField('Status', max_length=100, choices=Constant.BOOK_COPY_STATUS)
     location = CharField('Location', max_length=100)
@@ -84,7 +90,3 @@ class BookCopy(AbstractLibraryBaseModel):
 
     class Meta:
         db_table = 'library_book_copy'
-
-
-
-

@@ -36,7 +36,7 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    # 'django.middleware.csrf.CsrfViewMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -81,12 +81,12 @@ HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.RealtimeSignalProcessor'
 # Mysql database
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'library',
-        'USER': 'root',
-        'PASSWORD': '123456',
-        'HOST': '127.0.0.1',
-        'POST': 3306,
+        'ENGINE': 'django.db.backends.mysql',  # 数据库引擎
+        'NAME': 'library',  # 数据库名
+        'USER': 'library',  # 账号
+        'PASSWORD': 'Library_12345678',  # 密码
+        'HOST': '39.100.236.223',  # HOST
+        'POST': 3306,  # 端口
     }
 }
 # set upload path
@@ -156,26 +156,16 @@ LOGGING = {
     'disable_existing_loggers': False,
     'formatters': {
         'standard': {
-            'format': '{"time": "%(asctime)s", "level": "%(levelname)s", "method": "%(method)s", "username": "%('
-                      'username)s", "sip": "%(sip)s", "dip": "%(dip)s", "path": "%(path)s", "status_code": "%('
-                      'status_code)s", "reason_phrase": "%(reason_phrase)s", "func": "%(module)s.%(funcName)s:%('
-                      'lineno)d", "body": %(body)s, "result": %(result)s, "message": "%(message)s"}',
-            'datefmt': '%Y-%m-%d %H:%M:%S'
-        },
-        'console': {
             'format': '%(asctime)s[%(levelname)s][%(filename)s: %(module)s: %(funcName)s: %(lineno)d]: %(message)s',
             'datefmt': '%Y-%m-%d %H:%M:%S'
-        }
+        },
 
-    },
-    'filters': {
-        'request_info': {'()': 'library.middleware.log.RequestLogFilter'},
     },
     'handlers': {
         'default': {
             'level': 'DEBUG',
             'class': 'logging.StreamHandler',
-            'formatter': 'console',
+            'formatter': 'standard',
             'stream': sys.stdout,
         },
         # customer handlers，output to file
@@ -185,8 +175,6 @@ LOGGING = {
             'class': 'logging.handlers.TimedRotatingFileHandler',
             'filename': os.path.join(LOGS_DIR, 'web-log.log'),
             'formatter': 'standard',
-            # call filter function
-            'filters': ['request_info'],
             # split file in midnight
             'when': 'MIDNIGHT',
             # save file for 30 days
@@ -195,9 +183,9 @@ LOGGING = {
     },
     'loggers': {
         'default': {
-            'handlers': ['default'],
+            'handlers': ['restful_api', 'default'],
             'level': 'INFO',
-            'propagate': True
+            'propagate': False
         },
         'web.log': {
             'handlers': ['restful_api', 'default'],

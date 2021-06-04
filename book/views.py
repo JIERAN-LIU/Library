@@ -1,11 +1,10 @@
 import random
-#view
-from django.db.models import Max
+
 from rest_framework import status
 from rest_framework.response import Response
 
 from book.models import Author, Book, Publisher, BookCopy
-from book.serializers import AuthorSerializer, BookSerializer, PublisherSerializer, BookCopySerializer
+from book.serializers import AuthorSerializer, BookSerializer, PublisherSerializer, BookCopySerializer, gen_barcode
 from common.constant import Constant
 from common.views import BaseModelViewSet
 
@@ -16,9 +15,8 @@ class BookViewSet(BaseModelViewSet):
 
     def perform_create(self, serializer):
         extra_infos = self.fill_user(serializer, 'create')
-        extra_infos.update(self.gen_call_number())
+        extra_infos.update(self.gen_call_number(serializer))
         serializer.save(**extra_infos)
-        self.save_copies(serializer)
 
     def filter_queryset(self, queryset):
         queryset = super(BookViewSet, self).filter_queryset(queryset)
@@ -41,39 +39,24 @@ class BookViewSet(BaseModelViewSet):
         instance.status = Constant.BOOK_STATUS_DELETED
         instance.save()
 
-    @staticmethod
-    def save_copies(serializer):
-        data = serializer.data
-        if 'copies' not in data:
-            return
-
-        copies = data['copies']
-        add_barcode_data = []
-        barcode_list = gen_barcode(len(copies))
-        for i, c in enumerate(copies):
-            add_barcode_data.append({
-                **c,
-                'barcode': barcode_list[i]
-            })
-        serializer = BookCopySerializer(data=add_barcode_data, many=True)
-        serializer.save(book_id=data['id'][0])
-
-    def gen_call_number(self):
+    def gen_call_number(self, serializer):
         """
         Generate Call number by Library of Congress Classification
         :return: call_number str
         """
-        data = self.request.data
-        subject = data['subject'][0]
-        author_id = data['author'][0] or data['author_id'][0]
-        publication_date = data['publication_date'][0].replace('-', '').replace('/', '')
+        data = serializer.validated_data
+        original_data = self.request.data
+        subject = data['subject']
+        author_id = original_data['authors'][0]
+        publication_date = data['publication_date'].year
         code = Constant.BOOK_SUBJECT_CODE[subject]
         author = Author.objects.get(id=author_id)
-        ret = '{}{}.{}{}.{}'.format(code,
-                                    str(random.randint(1, 9999)).ljust(4, '0'),
-                                    author.name[0].upper(),
-                                    str(random.randint(1, 999)).ljust(3, '0'),
-                                    publication_date)
+        ret = '{}{}{}.{}{} {}'.format(code,
+                                      str(random.randint(1, 9999)).ljust(4, '0'),
+                                      chr(random.randint(65, 90)),
+                                      author.name[0].upper(),
+                                      str(random.randint(1, 999)).ljust(3, '0'),
+                                      publication_date)
         return {'call_number': ret}
 
 
@@ -118,22 +101,3 @@ class BookCopyViewSet(BaseModelViewSet):
     def perform_destroy(self, instance):
         instance.status = Constant.BOOK_STATUS_DELETED
         instance.save()
-
-
-def gen_barcode(num):
-    """
-    Generate book copy's barcode
-    :param num: number of book copy
-    :return: a barcode list which size is save as num
-    """
-    ret = []
-    copy_cnt = BookCopy.objects.count()
-    if not copy_cnt:
-        max_barcode = '1000000001'
-    else:
-        max_barcode = BookCopy.objects.aggregate(Max('barcode'))['barcode__max']
-    max_barcode_int = int(max_barcode)
-    for i in range(num):
-        max_barcode_int += 1
-        ret.append(str(max_barcode))
-    return ret

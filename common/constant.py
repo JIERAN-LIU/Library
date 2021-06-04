@@ -131,3 +131,5 @@ class Constant(object):
         ('French', 'French'),
         ('Thai', 'Thai'),
     )
+
+    MAX_BORROW_DAY = 7

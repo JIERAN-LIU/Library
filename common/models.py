@@ -1,5 +1,5 @@
 from django.contrib.auth.models import AbstractUser
-from django.db.models import Model, IntegerField, DateTimeField, CharField, ForeignKey, DO_NOTHING, DateField, FileField
+from django.db.models import Model, IntegerField, DateTimeField, CharField, ForeignKey, DO_NOTHING, DateField
 
 
 class AbstractLibraryBaseModel(Model):
@@ -30,7 +30,6 @@ class User(AbstractUser, AbstractLibraryBaseModel):
     major = CharField('Major', null=False, blank=False, max_length=200)
     admission_at = DateField('Admission at', default=None)
     role = CharField('Role', null=True, blank=True, max_length=200)
-    na = FileField
 
     @property
     def new_password(self):

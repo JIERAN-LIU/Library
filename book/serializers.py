@@ -1,7 +1,7 @@
+from django.db.models import Max
 from rest_framework import serializers
 
 from book.models import Book, Publisher, Author, BookCopy
-#t
 
 
 class PublisherSerializer(serializers.ModelSerializer):
@@ -32,24 +32,26 @@ class SimpleBookSerializer(serializers.ModelSerializer):
 
 
 class BookSerializer(serializers.ModelSerializer):
-    copies = BookCopySerializer(many=True)
-    publisher = serializers.SerializerMethodField(read_only=True)
-    authors = serializers.SerializerMethodField(read_only=True)
+    publisher_info = serializers.SerializerMethodField(read_only=True)
+    authors_info = serializers.SerializerMethodField(read_only=True)
+    copies = BookCopySerializer(many=True, write_only=True)
     available_number = serializers.SerializerMethodField(read_only=True)
     comment_summary = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = Book
         fields = ['id', 'title', 'language', 'subject', 'cover', 'description', 'isbn_10', 'isbn_13', 'publisher',
-                  'publication_date', 'call_number', 'authors', 'toc', 'price', 'print_length', 'binding', 'copies',
-                  'comment_summary', 'available_number']
+                  'publisher_info', 'publication_date', 'call_number', 'authors', 'authors_info', 'toc', 'price',
+                  'print_length', 'binding', 'copies', 'comment_summary', 'available_number']
 
         extra_kwargs = {
+            'publisher': {'write_only': True},
+            'authors': {'write_only': True},
             'call_number': {'read_only': True},
         }
 
     @staticmethod
-    def get_authors(obj):
+    def get_authors_info(obj):
         if not obj.authors:
             book = Book.objects.get(id=obj.id)
             authors = book.authors.all()
@@ -58,9 +60,9 @@ class BookSerializer(serializers.ModelSerializer):
         return [{'id': author.id, 'name': author.name, 'avatar': author.avatar} for author in authors]
 
     @staticmethod
-    def get_publisher(obj):
+    def get_publisher_info(obj):
         if not obj.publisher:
-            book = Book.objects.get(id=obj.id)
+            book = Book.objects.all().get(id=obj.id)
             publisher = book.publisher
         else:
             publisher = obj.publisher
@@ -75,3 +77,42 @@ class BookSerializer(serializers.ModelSerializer):
             copies = obj.copies
         return len(copies.filter(status='Available').all())
 
+
+    def create(self, validated_data):
+        copies = validated_data.pop('copies')
+        book = super(BookSerializer, self).create(validated_data)
+        self.save_copies(copies, book)
+        return book
+
+    @staticmethod
+    def save_copies(copies, book: Book):
+        copies_data = []
+        barcode_list = gen_barcode(len(copies))
+        for index, copy in enumerate(copies):
+            new_copy = {
+                'barcode': barcode_list[index],
+                'creator': book.creator,
+                'modifier': book.modifier,
+                **copy,
+            }
+            copies_data.append(BookCopy(book=book, **new_copy))
+        BookCopy.objects.bulk_create(copies_data)
+
+
+def gen_barcode(num):
+    """
+    Generate book copy's barcode
+    :param num: number of book copy
+    :return: a barcode list which size is save as num
+    """
+    ret = []
+    copy_cnt = BookCopy.objects.count()
+    if not copy_cnt:
+        max_barcode_int = 1000000001
+    else:
+        max_barcode_int = int(BookCopy.objects.aggregate(Max('barcode'))['barcode__max']) + 1
+    for i in range(num):
+        ret.append(str(max_barcode_int))
+        max_barcode_int += 1
+
+    return ret
