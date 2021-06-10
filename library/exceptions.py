@@ -3,10 +3,7 @@ import logging
 from rest_framework.response import Response
 from rest_framework.views import exception_handler as rest_handler
 
-c_fmt = "[%(levelname)s]%(asctime)s %(filename)s.%(funcName)s():line %(lineno)d :\n%(message)s"
-date_format = "%Y-%m-%d %H:%M:%S %a"
-logging.basicConfig(level=logging.INFO, format=c_fmt, datefmt=date_format)
-logger = logging.getLogger("drf")
+logger = logging.getLogger("web.log")
 
 
 def library_global_exception_handler(exc, context):

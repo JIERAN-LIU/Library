@@ -4,7 +4,7 @@ import traceback
 
 from django.http import JsonResponse
 
-logger = logging.getLogger('weg.log')
+logger = logging.getLogger('default')
 
 
 class ExceptionBoxMiddleware(object):
@@ -17,7 +17,7 @@ class ExceptionBoxMiddleware(object):
     def process_exception(self, request, exception):
         try:
             ret_json = {
-                'detail': '{}: {}'.format(exception.__class__.__name__, getattr(exception, 'message', ''))
+                'detail': '{}: {}'.format(exception.__class__.__name__, str(exception))
             }
             response = JsonResponse(ret_json)
             response.status_code = getattr(exception, 'status_code', 500)
@@ -34,7 +34,7 @@ class ExceptionBoxMiddleware(object):
         except Exception as e:
             response = JsonResponse(
                 data={
-                    'detail': getattr(e, 'message', ''),
+                    'detail': str(e),
                 }
             )
             response.status_code = getattr(e, 'status_code', 500)

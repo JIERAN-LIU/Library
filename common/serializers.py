@@ -4,10 +4,12 @@ from common.models import User, College
 
 
 class UserSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = User
         fields = ['id', 'username', 'avatar', 'email', 'is_active', 'role',
                   'admission_at', 'student_id', 'gender', 'college']
+
 
 
 class UserLoginSerializer(serializers.ModelSerializer):

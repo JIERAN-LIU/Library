@@ -77,6 +77,17 @@ class BookSerializer(serializers.ModelSerializer):
             copies = obj.copies
         return len(copies.filter(status='Available').all())
 
+    @staticmethod
+    def get_comment_summary(obj):
+        if not obj.comment_summary:
+            book = Book.objects.get(id=obj.id)
+            comment_summary = book.comment_summary
+        else:
+            comment_summary = obj.comment_summary
+        from comment.serializers import CommentSummarySerializer
+
+        serializer = CommentSummarySerializer(comment_summary.all(), many=True)
+        return serializer.data[0] if len(serializer.data) > 0 else {}
 
     def create(self, validated_data):
         copies = validated_data.pop('copies')

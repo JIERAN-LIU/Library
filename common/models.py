@@ -28,7 +28,7 @@ class User(AbstractUser, AbstractLibraryBaseModel):
     college = ForeignKey(College, verbose_name='College', on_delete=DO_NOTHING, related_name='user_college',
                          null=True)
     major = CharField('Major', null=False, blank=False, max_length=200)
-    admission_at = DateField('Admission at', default=None)
+    admission_at = DateField('Admission at', default=None, null=True)
     role = CharField('Role', null=True, blank=True, max_length=200)
 
     @property

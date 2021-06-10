@@ -83,9 +83,9 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',  # 数据库引擎
         'NAME': 'library',  # 数据库名
-        'USER': 'library',  # 账号
-        'PASSWORD': 'Library_12345678',  # 密码
-        'HOST': '39.100.236.223',  # HOST
+        'USER': 'root',  # 账号
+        'PASSWORD': '123456',  # 密码
+        'HOST': '127.0.0.1',  # HOST
         'POST': 3306,  # 端口
     }
 }
