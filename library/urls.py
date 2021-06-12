@@ -22,7 +22,7 @@ urlpatterns = [
     path('', include('common.urls', namespace='common')),
     path('', include('comment.urls', namespace='comment')),
     path('', include('recommendation.urls', namespace='recommendation')),
-    path('', include('search.urls', namespace='search')),
+    path('', include(('search.urls', 'search'), namespace='search')),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     re_path(
         r"swagger(?P<format>\.json|\.yaml)",
