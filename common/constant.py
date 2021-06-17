@@ -82,7 +82,6 @@ class Constant(object):
     BOOK_COPY_STATUS = (
         ('Available', 'Available'),
         ('On-Borrowing', 'On Borrowing'),
-        ('Staff-Only', 'Staff Only'),
         ('Deleted', 'Deleted'),
     )
 
@@ -101,6 +100,8 @@ class Constant(object):
         ('Female', 'Female'),
         ('Unknown', 'Unknown'),
     )
+
+    GENDERS_UNKNOWN = 'Unknown'
 
     BOOK_MEDIA_TYPE = (
         ('Text-Book', 'Text Book'),
@@ -133,3 +134,13 @@ class Constant(object):
     )
 
     MAX_BORROW_DAY = 7
+
+    ROLES = (
+        ('Admin', 'Admin'),
+        ('Librarian', 'Librarian'),
+        ('Reader', 'Reader'),
+    )
+
+    ROLE_ADMIN = 'Admin'
+    ROLE_LIBRARIAN = 'Librarian'
+    ROLE_READER = 'Reader'

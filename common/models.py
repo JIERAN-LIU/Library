@@ -1,6 +1,8 @@
 from django.contrib.auth.models import AbstractUser
 from django.db.models import Model, IntegerField, DateTimeField, CharField, ForeignKey, DO_NOTHING, DateField
 
+from common.constant import Constant
+
 
 class AbstractLibraryBaseModel(Model):
     creator = IntegerField('creator', null=True)
@@ -13,7 +15,7 @@ class AbstractLibraryBaseModel(Model):
         abstract = True
 
 
-class College(Model):
+class College(AbstractLibraryBaseModel):
     name = CharField('name', null=False, blank=False, max_length=200)
 
     class Meta:
@@ -21,15 +23,16 @@ class College(Model):
 
 
 class User(AbstractUser, AbstractLibraryBaseModel):
-    avatar = CharField('Avatar', max_length=1000)
+    avatar = CharField('Avatar', max_length=1000, null=True, blank=True)
     nickname = CharField('Nickname', null=True, blank=True, max_length=200)
-    gender = CharField('Gender', null=False, blank=False, max_length=200)
-    student_id = CharField('Student ID', null=False, blank=False, max_length=30)
+    gender = CharField('Gender', null=True, blank=True, max_length=200, choices=Constant.GENDERS,
+                       default=Constant.GENDERS_UNKNOWN)
+    student_id = CharField('Student ID', null=True, blank=True, max_length=30)
     college = ForeignKey(College, verbose_name='College', on_delete=DO_NOTHING, related_name='user_college',
-                         null=True)
-    major = CharField('Major', null=False, blank=False, max_length=200)
-    admission_at = DateField('Admission at', default=None, null=True)
-    role = CharField('Role', null=True, blank=True, max_length=200)
+                         null=True, blank=True)
+    major = CharField('Major', null=True, blank=True, max_length=200)
+    admission_at = DateField('Admission at', default=None, null=True, blank=True)
+    role = CharField('Role', null=True, blank=True, max_length=200, choices=Constant.ROLES)
 
     @property
     def new_password(self):

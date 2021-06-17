@@ -16,9 +16,9 @@ from common.models import College, User
 from common.serializers import CollegeSerializer, UserSerializer, UserLoginSerializer, UserPasswordSerializer
 from common.utils import get_upload_file_path
 
-
+#This is defau Password for the librarin
 def get_default_password():
-    return {'password': make_password('12345678.Abc')}
+    return make_password('12345678.Abc')
 
 
 class BaseError(ValidationError):
@@ -112,18 +112,50 @@ class BaseModelViewSet(LibraryViewSetMixin, viewsets.ModelViewSet):
 class CollegeViewSet(BaseModelViewSet):
     queryset = College.objects.all().order_by('name')
     serializer_class = CollegeSerializer
-    permission_classes = [permissions.IsAdminUser]
+    permission_classes = [permissions.IsAuthenticated]
+
+    def perform_create(self, serializer):
+        if self.request.user.role != Constant.ROLE_ADMIN:
+            raise BaseError('You have no authority to do that')
+        super(CollegeViewSet, self).perform_create(serializer)
+
+    def perform_destroy(self, instance):
+        if self.request.user.role != Constant.ROLE_ADMIN:
+            raise BaseError('You have no authority to do that')
+        super(CollegeViewSet, self).perform_destroy(instance)
+
+    def perform_update(self, serializer):
+        if self.request.user.role != Constant.ROLE_ADMIN:
+            raise BaseError('You have no authority to do that')
+        super(CollegeViewSet, self).perform_update(serializer)
 
 
 class UserViewSet(BaseModelViewSet):
     queryset = User.objects.all().order_by('username')
     serializer_class = UserSerializer
-    permission_classes = [permissions.IsAdminUser]
+    permission_classes = [permissions.IsAuthenticated]
+
+    def filter_queryset(self, queryset):
+        queryset = super(UserViewSet, self).filter_queryset(queryset)
+        if self.request.user.role == Constant.ROLE_ADMIN:
+            queryset = queryset.filter(role=Constant.ROLE_LIBRARIAN)
+        if self.request.user.role == Constant.ROLE_LIBRARIAN:
+            queryset = queryset.filter(role=Constant.ROLE_READER)
+        if self.request.user.role == Constant.ROLE_READER:
+            queryset = queryset.filter(role=Constant.ROLE_READER)
+        return queryset.filter(is_active=True)
 
     def perform_create(self, serializer):
+        if serializer.validated_data['role'] == Constant.ROLE_ADMIN:
+            raise BaseError('Could not add Admin user')
         user = self.fill_user(serializer, 'create')
-        user.update(get_default_password())
+        user.setdefault('password', get_default_password())
         serializer.save(**user)
+
+    def perform_destroy(self, instance):
+        if instance.role == Constant.ROLE_ADMIN:
+            raise BaseError('Could not delete Admin user')
+        super(UserViewSet, self).perform_destroy(instance)
 
 
 class UserLoginViewSet(GenericAPIView):
@@ -163,8 +195,19 @@ class PasswordUpdateViewSet(GenericAPIView):
         """
         Parameter: id->user's id your will reset, not your self
         """
-        user_id = request.data.get('id', '')
+        user_id = int(request.query_params.get('id', 0))
         user = User.objects.get(id=user_id)
+
+        login_user = request.user
+
+        if login_user.role == Constant.ROLE_ADMIN and user.role != Constant.ROLE_LIBRARIAN:
+            raise BaseError('You have no authority to do that')
+
+        if login_user.role == Constant.ROLE_LIBRARIAN and user.role != Constant.ROLE_READER:
+            raise BaseError('You have no authority to do that')
+
+        if login_user.role == Constant.ROLE_READER and user.id != login_user.id:
+            raise BaseError('You have no authority to do that')
 
         if user is not None and user.is_active:
             user.password = get_default_password()
@@ -181,8 +224,8 @@ class PasswordUpdateViewSet(GenericAPIView):
         password = request.data.get('password', '')
         new_password = request.data.get('new_password', '')
         user = User.objects.get(id=user_id)
-        if user.check_password(password):
-            ret = {'detail': 'old password is wroong !'}
+        if not user.check_password(password):
+            ret = {'detail': 'old password is wrong !'}
             return Response(ret, status=403)
 
         user.set_password(new_password)

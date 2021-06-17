@@ -27,8 +27,8 @@ INSTALLED_APPS = [
     'book',
     'borrow',
     'comment',
-    'search',
-    'recommendation',
+    # 'search',
+    # 'recommendation',
     'library'
 ]
 
@@ -77,7 +77,6 @@ HAYSTACK_CONNECTIONS = {
 HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.RealtimeSignalProcessor'
 # Tell haystack to use customer highlighter
 # HAYSTACK_CUSTOM_HIGHLIGHTER = 'search.utils.Highlighter'
-
 # Mysql database
 DATABASES = {
     'default': {
@@ -159,7 +158,6 @@ LOGGING = {
             'format': '%(asctime)s[%(levelname)s][%(filename)s: %(module)s: %(funcName)s: %(lineno)d]: %(message)s',
             'datefmt': '%Y-%m-%d %H:%M:%S'
         },
-
     },
     'handlers': {
         'default': {
@@ -167,6 +165,10 @@ LOGGING = {
             'class': 'logging.StreamHandler',
             'formatter': 'standard',
             'stream': sys.stdout,
+        },
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
         },
         # customer handlers，output to file
         'restful_api': {
@@ -192,6 +194,11 @@ LOGGING = {
             'level': 'INFO',
             # tell django need not log this information again
             'propagate': False
+        },
+        'django.db.backends': {
+            'handlers': ['console'],
+            'propagate': True,
+            'level': 'DEBUG',
         },
     }
 }

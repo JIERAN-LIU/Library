@@ -1,5 +1,7 @@
 import logging
 
+from django.db import DatabaseError
+from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import exception_handler as rest_handler
 
@@ -18,12 +20,14 @@ def library_global_exception_handler(exc, context):
 
     response = rest_handler(exc, context)
     context_view = context.get("view", None)
-    context_path = context.get('request').path
-    context_method = context.get('request').method
-    context_ip = context.get('request').META.get("REMOTE_ADDR")
     if response is None:
         logger.error('%s,%s' % (context_view, exc))
+        if isinstance(exc, DatabaseError):
+            detail = 'Database operation error, please check data or your operation to data'
+        else:
+            detail = str(exc).replace('\\', '')
         response = Response(
-            {'success': False, 'msg': str(exc).replace('\\', ''), "path": context_path, "method": context_method,
-             'remote_address': context_ip})
+            data={'detail': detail},
+            status=status.HTTP_400_BAD_REQUEST
+        )
     return response

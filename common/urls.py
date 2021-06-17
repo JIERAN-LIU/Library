@@ -20,6 +20,5 @@ urlpatterns = [
     url(r'^user/pwd', views.PasswordUpdateViewSet.as_view()),
     url(r'^dict', views.ConstantViewSet.as_view()),
     url(r'upload/$', ImageUploadViewSet.as_view()),
-    # url(r'upload/(?P<path>).*', static.serve, {'document_root': settings.MEDIA_URL, 'show_indexes': True})
     url(r'upload/(?P<path>.*)', serve, {'document_root': settings.MEDIA_ROOT})
 ]
