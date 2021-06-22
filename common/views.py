@@ -16,7 +16,7 @@ from common.models import College, User
 from common.serializers import CollegeSerializer, UserSerializer, UserLoginSerializer, UserPasswordSerializer
 from common.utils import get_upload_file_path
 
-# this is default the password for the reader and librarian
+
 def get_default_password():
     return make_password('12345678.Abc')
 

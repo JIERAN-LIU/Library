@@ -1,5 +1,5 @@
 # Create your models here.
-
+#要是设置与数据库交互
 from django.db.models import Model, CharField, EmailField, URLField, IntegerField, TextField, \
     ForeignKey, DO_NOTHING, FloatField, ManyToManyField, CASCADE, DateField
 
@@ -42,8 +42,8 @@ class Book(AbstractLibraryBaseModel):
     subject = CharField('Subject', max_length=100, choices=Constant.BOOK_SUBJECTS)
     cover = CharField('Cover', max_length=1000)
     description = TextField('Description', max_length=10000)
-    isbn_10 = CharField('ISBN-10', max_length=100, unique=True)
-    isbn_13 = CharField('ISBN-13', max_length=100, unique=True)
+    isbn_10 = CharField('ISBN-10', max_length=100)
+    isbn_13 = CharField('ISBN-13', max_length=100)
     call_number = CharField('Call number', max_length=100, unique=True)
     publisher = ForeignKey(Publisher, verbose_name='Published By', on_delete=DO_NOTHING, null=True,
                            related_name='book_publisher')

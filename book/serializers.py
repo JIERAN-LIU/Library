@@ -34,7 +34,7 @@ class SimpleBookSerializer(serializers.ModelSerializer):
 class BookSerializer(serializers.ModelSerializer):
     publisher_info = serializers.SerializerMethodField(read_only=True)
     authors_info = serializers.SerializerMethodField(read_only=True)
-    copies = BookCopySerializer(many=True, write_only=True)
+    copies = BookCopySerializer(many=True, write_only=True, required=False)
     available_number = serializers.SerializerMethodField(read_only=True)
     comment_summary = serializers.SerializerMethodField(read_only=True)
 

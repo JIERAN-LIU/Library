@@ -6,7 +6,7 @@ from rest_framework.response import Response
 from book.models import Author, Book, Publisher, BookCopy
 from book.serializers import AuthorSerializer, BookSerializer, PublisherSerializer, BookCopySerializer, gen_barcode
 from common.constant import Constant
-from common.views import BaseModelViewSet
+from common.views import BaseModelViewSet, BaseError
 
 
 class BookViewSet(BaseModelViewSet):
@@ -14,6 +14,18 @@ class BookViewSet(BaseModelViewSet):
     serializer_class = BookSerializer
 
     def perform_create(self, serializer):
+        if 'copies' not in serializer.validated_data:
+            raise BaseError('copies is required')
+
+        book = Book.objects.filter(isbn_10=serializer.validated_data['isbn_10']).exclude(
+            status=Constant.BOOK_STATUS_DELETED)
+        if book:
+            raise BaseError('isbn is duplicated')
+        book = Book.objects.filter(isbn_13=serializer.validated_data['isbn_13']).exclude(
+            status=Constant.BOOK_STATUS_DELETED)
+        if book:
+            raise BaseError('isbn is duplicated')
+
         extra_infos = self.fill_user(serializer, 'create')
         extra_infos.update(self.gen_call_number(serializer))
         serializer.save(**extra_infos)
