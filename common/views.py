@@ -17,6 +17,7 @@ from common.serializers import CollegeSerializer, UserSerializer, UserLoginSeria
 from common.utils import get_upload_file_path
 
 
+# default the password
 def get_default_password():
     return make_password('12345678.Abc')
 
