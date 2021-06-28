@@ -3,6 +3,7 @@ from drf_yasg import openapi
 from drf_yasg.views import get_schema_view
 from rest_framework import permissions
 
+# drf_yas 从这里开始（Swagger)
 schema_view = get_schema_view(
     openapi.Info(
         title="Library Management System build with Django REST framework API",
@@ -15,6 +16,7 @@ schema_view = get_schema_view(
     public=True,
     permission_classes=(permissions.AllowAny,),
 )
+# here is end
 
 urlpatterns = [
     path('', include('book.urls', namespace='book')),

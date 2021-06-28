@@ -21,14 +21,14 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'haystack',
     'rest_framework',
-    'drf_yasg',
+    'drf_yasg', # <---- Swagger推荐文档 
     'django_filters',
     'common',
     'book',
     'borrow',
     'comment',
-    # 'search',
-    # 'recommendation',
+    'search',
+    'recommendation',
     'library'
 ]
 
