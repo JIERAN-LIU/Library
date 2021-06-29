@@ -8,8 +8,8 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['id', 'username', 'avatar', 'email', 'is_active', 'role',
-                  'admission_at', 'student_id', 'gender', 'college', 'college_info', ]
+        fields = ['id', 'username', 'avatar', 'nickname', 'email', 'is_active', 'role',
+                  'student_id', 'gender', 'college', 'college_info', ]
 
     @staticmethod
     def get_college_info(obj):
