@@ -21,6 +21,7 @@ class BookIndex(indexes.SearchIndex, indexes.Indexable):
     call_number = indexes.EdgeNgramField(model_attr='call_number')
     price = indexes.FloatField(model_attr='price', stored=True)
     print_length = indexes.IntegerField(model_attr='print_length', stored=True)
+    cover = indexes.CharField(model_attr='cover', stored=True)
 
     def get_model(self):
         return Book

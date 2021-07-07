@@ -21,7 +21,7 @@ def library_global_exception_handler(exc, context):
     response = rest_handler(exc, context)
     context_view = context.get("view", None)
     if response is None:
-        logger.error('%s,%s' % (context_view, exc))
+        logger.error('%s,%s' % (context_view, exc.__str__() or exc.__repr__()))
         if isinstance(exc, DatabaseError):
             detail = 'Database operation error, please check data or your operation to data'
         else:

@@ -1,5 +1,4 @@
 # Create your models here.
-#要是设置与数据库交互
 from django.db.models import Model, CharField, EmailField, URLField, IntegerField, TextField, \
     ForeignKey, DO_NOTHING, FloatField, ManyToManyField, CASCADE, DateField
 

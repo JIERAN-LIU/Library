@@ -21,7 +21,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'haystack',
     'rest_framework',
-    'drf_yasg', # <---- Swagger推荐文档 
+    'drf_yasg',# swagger
     'django_filters',
     'common',
     'book',
@@ -29,6 +29,7 @@ INSTALLED_APPS = [
     'comment',
     'search',
     'recommendation',
+    # 'doc',
     'library'
 ]
 
@@ -77,6 +78,7 @@ HAYSTACK_CONNECTIONS = {
 HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.RealtimeSignalProcessor'
 # Tell haystack to use customer highlighter
 # HAYSTACK_CUSTOM_HIGHLIGHTER = 'search.utils.Highlighter'
+
 # Mysql database
 DATABASES = {
     'default': {
@@ -202,3 +204,13 @@ LOGGING = {
         },
     }
 }
+EMAIL_BACKEND = 'django_smtp_ssl.SSLEmailBackend'
+MAILER_EMAIL_BACKEND = EMAIL_BACKEND
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.163.com'
+EMAIL_PORT = 465
+EMAIL_HOST_USER = 'zgj0607@163.com'
+EMAIL_HOST_PASSWORD = '491001coMzgj.'
+EMAIL_SUBJECT_PREFIX = u'[LSS]'
+# EMAIL_USE_TLS = True
+EMAIL_USE_SSL = True

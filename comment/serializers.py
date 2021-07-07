@@ -1,36 +1,45 @@
 from rest_framework import serializers
 
-from comment.models import Comment, CommentSummary
+from common.models import User, College
 
 
-class CommentSerializer(serializers.ModelSerializer):
-    book_info = serializers.SerializerMethodField(read_only=True)
-    user_info = serializers.SerializerMethodField(read_only=True)
+class UserSerializer(serializers.ModelSerializer):
+    college_info = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
-        model = Comment
-        fields = ['id', 'user', 'user_info', 'book', 'book_info', 'content', 'rating', 'created_at']
+        model = User
+        fields = ['id', 'username', 'avatar', 'nickname', 'email', 'is_active', 'role',
+                  'student_id', 'gender', 'college', 'college_info', ]
+
+    @staticmethod
+    def get_college_info(obj):
+        if obj.college:
+            return {'id': obj.college.id, 'name': obj.college.name}
+        return {}
+
+
+class UserLoginSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'password']
         extra_kwargs = {
-            'user': {'write_only': True},
-            'book': {'write_only': True}
+            'password': {'write_only': True},
         }
 
-    @staticmethod
-    def get_book_info(obj):
-        book = obj.book
-        if not book:
-            book = Comment.objects.get(id=obj.id).book
-        return {'id': book.id, 'title': book.title, 'cover': book.cover} if book else {}
 
-    @staticmethod
-    def get_user_info(obj):
-        user = obj.user
-        if not user:
-            user = Comment.objects.get(id=obj.id).user
-        return {'id': user.id, 'name': user.nickname or user.username, 'avatar': user.avatar} if user else {}
+class UserPasswordSerializer(serializers.ModelSerializer):
+    new_password = serializers.SerializerMethodField()
 
-
-class CommentSummarySerializer(serializers.ModelSerializer):
     class Meta:
-        model = CommentSummary
-        fields = ['id', 'book', 'rating', 'rating_number']
+        model = User
+        fields = ['id', 'username', 'password', 'new_password']
+
+    @staticmethod
+    def get_new_password(obj):
+        return obj.password or ''
+
+
+class CollegeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = College
+        fields = ['id', 'name']
