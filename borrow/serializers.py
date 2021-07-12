@@ -15,7 +15,10 @@ class BookActionSerializer(serializers.ModelSerializer):
 
 class BookFineSerializer(BookActionSerializer):
     class Meta(BookActionSerializer.Meta):
-        fields = ['id', 'fine', 'pay_method', 'currency_symbol', 'fined_at']
+        fields = ['id', 'fine', 'fined_at']
+        extra_kwargs = {
+            'fined_at': {'read_only': True},
+        }
 
 
 class BorrowRecordSerializer(serializers.ModelSerializer):
@@ -24,6 +27,7 @@ class BorrowRecordSerializer(serializers.ModelSerializer):
     has_overdue = serializers.SerializerMethodField(read_only=True)
     remain_days = serializers.SerializerMethodField(read_only=True)
     overdue_days = serializers.SerializerMethodField(read_only=True)
+    fine = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = BorrowRecord
@@ -39,7 +43,6 @@ class BorrowRecordSerializer(serializers.ModelSerializer):
             'has_renewed': {'read_only': True},
             'has_fined': {'read_only': True},
             'has_overdue': {'read_only': True},
-            'fine': {'read_only': True},
             'pay_method': {'read_only': True},
             'currency_symbol': {'read_only': True},
             'book': {'write_only': True},
@@ -84,3 +87,6 @@ class BorrowRecordSerializer(serializers.ModelSerializer):
         if not reader:
             reader = BorrowRecord.objects.get(id=obj.id).reader
         return {'id': reader.id, 'title': reader.nickname or reader.username, 'avatar': reader.avatar} if reader else {}
+
+    def get_fine(self, obj: BorrowRecord):
+        return min(self.get_overdue_days(obj) * 0.5, 10)

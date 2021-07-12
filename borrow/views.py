@@ -69,8 +69,8 @@ class BookCopyFineViewSet(BookCopyReturnViewSet):
 
     def perform_update(self, serializer):
         record: BorrowRecord = BorrowRecord.objects.get(id=self.get_pk())
-
-        if not record.has_overdue or record.has_fined:
+        serializer_borrow_record = BorrowRecordSerializer(record)
+        if not serializer_borrow_record.data.get('has_overdue') or record.has_fined:
             raise BaseError(detail="The copy does not need  fine")
         user = self.fill_user(serializer, 'update')
         serializer.save(

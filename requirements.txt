@@ -12,3 +12,4 @@ drf-haystack==1.8.10
 django-filter==2.4.0
 whoosh==2.7.4
 uwsgi==2.0.19.1
+django-smtp-ssl==1.0
