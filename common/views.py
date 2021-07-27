@@ -1,7 +1,9 @@
 import logging
 
+import django.conf
 from django.contrib.auth import authenticate, login, logout as auth_logout
 from django.contrib.auth.hashers import make_password
+from django.core.mail import send_mail
 from django.db.models import QuerySet
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets, permissions, status
@@ -17,9 +19,14 @@ from common.serializers import CollegeSerializer, UserSerializer, UserLoginSeria
 from common.utils import get_upload_file_path
 
 
-# default the password
 def get_default_password():
     return make_password('12345678.Abc')
+
+
+def get_random_password():
+    import random
+    import string
+    return ''.join(random.sample(string.ascii_letters + string.digits + string.punctuation, 8))
 
 
 class BaseError(ValidationError):
@@ -144,7 +151,7 @@ class UserViewSet(BaseModelViewSet):
             queryset = queryset.filter(role=Constant.ROLE_READER)
         if self.request.user.role == Constant.ROLE_READER:
             queryset = queryset.filter(role=Constant.ROLE_READER)
-        return queryset.filter(is_active=True)
+        return queryset
 
     def perform_create(self, serializer):
         if serializer.validated_data['role'] == Constant.ROLE_ADMIN:
@@ -175,6 +182,37 @@ class UserLoginViewSet(GenericAPIView):
             return Response(serializer.data, status=200)
         else:
             ret = {'detail': 'Username or password is wrong'}
+            return Response(ret, status=403)
+
+    def put(self, request, *args, **kwargs):
+        """
+        Parameter: username->user's username who forget old password
+        """
+        username = request.data.get('username', '')
+        users = User.objects.filter(username=username)
+        user: User = users[0] if users else None
+
+        if user is not None and user.is_active:
+            password = get_random_password()
+
+            try:
+                send_mail(subject="New password for Library System",
+                          message="Hi: Your new password is: \n{}".format(password),
+                          from_email=django.conf.settings.EMAIL_HOST_USER,
+                          recipient_list=[user.email],
+                          fail_silently=False)
+                user.password = make_password(password)
+                user.save()
+                return Response({
+                    'detail': 'New password will send to your email!'
+                })
+            except Exception as e:
+                print(e)
+                return Response({
+                    'detail': 'Send New email failed, Please check your email address!'
+                })
+        else:
+            ret = {'detail': 'User does not exist(Account is incorrect !'}
             return Response(ret, status=403)
 
 

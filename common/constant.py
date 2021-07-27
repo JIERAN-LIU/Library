@@ -25,6 +25,7 @@ class Constant(object):
         ('Technology', 'Technology'),
         ('Military Science', 'Military Science'),
         ('Naval science', 'Naval science'),
+        ('Design', 'Design'),
         ('Library Science. Information Resources (General)', 'Library Science. Information Resources (General)')
     )
 
@@ -48,6 +49,7 @@ class Constant(object):
         'Technology': 'T',
         'Military Science': 'U',
         'Naval science': 'V',
+        'Design': 'I',
         'Library Science. Information Resources (General)': 'Z'
     }
 

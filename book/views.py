@@ -87,16 +87,13 @@ class BookCopyViewSet(BaseModelViewSet):
     serializer_class = BookCopySerializer
 
     def filter_queryset(self, queryset):
-        query_params = self.request.query_params
-        book = query_params.get('book', None)
-        if not book:
-            return queryset[0:0]
-        queryset = queryset.filter(book_id=book[0])
-        return super(BookCopyViewSet, self).filter_queryset(queryset)
+        queryset = super(BookCopyViewSet, self).filter_queryset(queryset)
+        return queryset.exclude(status=Constant.BOOK_STATUS_DELETED)
 
     def perform_create(self, serializer):
         extra_infos = self.fill_user(serializer, 'create')
         extra_infos['barcode'] = gen_barcode(1)[0]
+        extra_infos['status'] = Constant.BOOK_STATUS_AVAILABLE
         serializer.save(**extra_infos)
 
     def destroy(self, request, *args, **kwargs):

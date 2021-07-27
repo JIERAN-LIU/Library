@@ -23,7 +23,6 @@ urlpatterns = [
     path('', include('comment.urls', namespace='comment')),
     path('', include('recommendation.urls', namespace='recommendation')),
     path('', include('search.urls', namespace='search')),
-    # path('', include('doc.urls', namespace='doc')),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     re_path(
         r"swagger(?P<format>\.json|\.yaml)",

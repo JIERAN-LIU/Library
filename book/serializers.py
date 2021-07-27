@@ -2,6 +2,7 @@ from django.db.models import Max
 from rest_framework import serializers
 
 from book.models import Book, Publisher, Author, BookCopy
+from common.constant import Constant
 
 
 class PublisherSerializer(serializers.ModelSerializer):
@@ -17,11 +18,15 @@ class AuthorSerializer(serializers.ModelSerializer):
 
 
 class BookCopySerializer(serializers.ModelSerializer):
+    id = serializers.IntegerField(required=False)
+
     class Meta:
         model = BookCopy
-        fields = ['id', 'barcode', 'status', 'location', 'section', 'media_type']
+        fields = ['id', 'barcode', 'status', 'location', 'section', 'media_type', 'book']
         extra_kwargs = {
             'barcode': {'read_only': True},
+            'status': {'read_only': True},
+            'book': {'required': False},
         }
 
 
@@ -95,19 +100,43 @@ class BookSerializer(serializers.ModelSerializer):
         self.save_copies(copies, book)
         return book
 
+    def update(self, instance, validated_data):
+        copies = validated_data.pop('copies')
+        book = super(BookSerializer, self).update(instance, validated_data)
+        self.save_copies(copies, book)
+        return book
+
     @staticmethod
     def save_copies(copies, book: Book):
-        copies_data = []
+        new_copies_data = []
+        update_copies_data = []
         barcode_list = gen_barcode(len(copies))
+        fields = []
         for index, copy in enumerate(copies):
-            new_copy = {
-                'barcode': barcode_list[index],
-                'creator': book.creator,
-                'modifier': book.modifier,
-                **copy,
-            }
-            copies_data.append(BookCopy(book=book, **new_copy))
-        BookCopy.objects.bulk_create(copies_data)
+            if not copy.get('id'):
+                new_copy = {
+                    'barcode': barcode_list[index],
+                    'creator': book.creator,
+                    'modifier': book.modifier,
+                    'status': Constant.BOOK_STATUS_AVAILABLE,
+                    **copy,
+                }
+                if 'book' not in copy:
+                    new_copy['book'] = book
+                new_copies_data.append(BookCopy(**new_copy))
+            else:
+                update_copy = {
+                    'modifier': book.modifier,
+                    **copy,
+                }
+                if not update_copies_data:
+                    fields = list(update_copy.keys())
+                    fields.remove('id')
+                update_copies_data.append(BookCopy(**update_copy))
+        if new_copies_data:
+            BookCopy.objects.bulk_create(new_copies_data)
+        if update_copies_data:
+            BookCopy.objects.bulk_update(update_copies_data, fields)
 
 
 def gen_barcode(num):
