@@ -203,13 +203,13 @@ LOGGING = {
         },
     }
 }
-EMAIL_BACKEND = 'django_smtp_ssl.SSLEmailBackend'
+# EMAIL_BACKEND = 'django_smtp_ssl.SSLEmailBackend'
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 MAILER_EMAIL_BACKEND = EMAIL_BACKEND
-# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp-mail.outlook.com'
-EMAIL_PORT = 465
-EMAIL_HOST_USER = 'jieran_liu@cmu.ac.th'
-EMAIL_HOST_PASSWORD = '980420qweasdzxc'
+EMAIL_HOST = 'smtp.qq.com'
+EMAIL_PORT = 587
+EMAIL_HOST_USER = '921064608@qq.com'
+EMAIL_HOST_PASSWORD = 'aoiwybmexcwqbedf'
 EMAIL_SUBJECT_PREFIX = u'[LSS]'
-# EMAIL_USE_TLS = True
-EMAIL_USE_SSL = True
+EMAIL_USE_TLS = True
+# EMAIL_USE_SSL = True
