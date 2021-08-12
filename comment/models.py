@@ -1,42 +1,30 @@
-from django.contrib.auth.models import AbstractUser
-from django.db.models import Model, IntegerField, DateTimeField, CharField, ForeignKey, DO_NOTHING, DateField
+# Create your models here.
+from django.db.models import CASCADE, ForeignKey, TextField, IntegerField, Model, FloatField, OneToOneField, DO_NOTHING
 
-from common.constant import Constant
-
-
-class AbstractLibraryBaseModel(Model):
-    creator = IntegerField('creator', null=True)
-    created_at = DateTimeField(verbose_name='Created at', auto_now_add=True)
-
-    modifier = IntegerField('modifier', null=True)
-    modified_at = DateTimeField(verbose_name='Modified at', auto_now=True)
-
-    class Meta:
-        abstract = True
+from book.models import Book
+from common.models import AbstractLibraryBaseModel, User
 
 
-class College(AbstractLibraryBaseModel):
-    name = CharField('name', null=False, blank=False, max_length=200)
+class Comment(AbstractLibraryBaseModel):
+    user = ForeignKey(User, verbose_name='User', on_delete=DO_NOTHING, related_name='comment_user', null=True)
+    book = ForeignKey(Book, verbose_name='Book', on_delete=DO_NOTHING, related_name='comment_book', null=True)
+    content = TextField('Content', max_length=10000, null=True)
+    rating = IntegerField('Rating', choices=[(i, i) for i in range(11)], null=False)
 
     class Meta:
-        db_table = 'library_college'
+        db_table = 'library_comment'
+
+    def __str__(self):
+        return str(self.rating)
 
 
-class User(AbstractUser, AbstractLibraryBaseModel):
-    avatar = CharField('Avatar', max_length=1000, null=True, blank=True)
-    nickname = CharField('Nickname', null=True, blank=True, max_length=200)
-    gender = CharField('Gender', null=True, blank=True, max_length=200, choices=Constant.GENDERS,
-                       default=Constant.GENDERS_UNKNOWN)
-    student_id = CharField('Student ID', null=True, blank=True, max_length=30)
-    college = ForeignKey(College, verbose_name='College', on_delete=DO_NOTHING, related_name='user_college',
-                         null=True, blank=True)
-    major = CharField('Major', null=True, blank=True, max_length=200)
-    admission_at = DateField('Admission at', default=None, null=True, blank=True)
-    role = CharField('Role', null=True, blank=True, max_length=200, choices=Constant.ROLES)
-
-    @property
-    def new_password(self):
-        return self.password
+class CommentSummary(Model):
+    book = ForeignKey(Book, verbose_name='Book', on_delete=CASCADE, related_name='comment_summary', null=False)
+    rating = FloatField('Rating')
+    rating_number = IntegerField('Rating number')
 
     class Meta:
-        db_table = 'library_user'
+        db_table = 'library_comment_summary'
+
+    def __str__(self):
+        return 'mean rating {} from {}'.format(self.rating, self.rating_number)

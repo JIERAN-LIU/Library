@@ -1,45 +1,36 @@
 from rest_framework import serializers
 
-from common.models import User, College
+from comment.models import Comment, CommentSummary
 
 
-class UserSerializer(serializers.ModelSerializer):
-    college_info = serializers.SerializerMethodField(read_only=True)
+class CommentSerializer(serializers.ModelSerializer):
+    book_info = serializers.SerializerMethodField(read_only=True)
+    user_info = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
-        model = User
-        fields = ['id', 'username', 'avatar', 'nickname', 'email', 'is_active', 'role',
-                  'student_id', 'gender', 'college', 'college_info', ]
-
-    @staticmethod
-    def get_college_info(obj):
-        if obj.college:
-            return {'id': obj.college.id, 'name': obj.college.name}
-        return {}
-
-
-class UserLoginSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ['id', 'username', 'password']
+        model = Comment
+        fields = ['id', 'user', 'user_info', 'book', 'book_info', 'content', 'rating', 'created_at']
         extra_kwargs = {
-            'password': {'write_only': True},
+            'user': {'write_only': True},
+            'book': {'write_only': True}
         }
 
-
-class UserPasswordSerializer(serializers.ModelSerializer):
-    new_password = serializers.SerializerMethodField()
-
-    class Meta:
-        model = User
-        fields = ['id', 'username', 'password', 'new_password']
+    @staticmethod
+    def get_book_info(obj):
+        book = obj.book
+        if not book:
+            book = Comment.objects.get(id=obj.id).book
+        return {'id': book.id, 'title': book.title, 'cover': book.cover} if book else {}
 
     @staticmethod
-    def get_new_password(obj):
-        return obj.password or ''
+    def get_user_info(obj):
+        user = obj.user
+        if not user:
+            user = Comment.objects.get(id=obj.id).user
+        return {'id': user.id, 'name': user.nickname or user.username, 'avatar': user.avatar} if user else {}
 
 
-class CollegeSerializer(serializers.ModelSerializer):
+class CommentSummarySerializer(serializers.ModelSerializer):
     class Meta:
-        model = College
-        fields = ['id', 'name']
+        model = CommentSummary
+        fields = ['id', 'book', 'rating', 'rating_number']
