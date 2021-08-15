@@ -33,8 +33,8 @@ class Recommendation(object):
         rating = []
 
         for r in self.comments:
-            items.append(r.user_id)
-            users.append(r.book_id)
+            items.append(r.book_id)
+            users.append(r.user_id)
             rating.append(r.rating)
 
         return {

@@ -94,7 +94,7 @@ class CommentGenerate(APIView):
                 'content': fake.paragraph()
             })
             comments.append(comment)
-            comment_set.add(comment)
+            comment_set.add(str(user.id) + '_' + str(book.id))
 
             if comment.book.id in comment_summaries:
                 comment_summary = comment_summaries[comment.book.id]
