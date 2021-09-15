@@ -6,7 +6,7 @@ from django.contrib.auth.hashers import make_password
 from django.core.mail import send_mail
 from django.db.models import QuerySet
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import viewsets, permissions, status
+from rest_framework import viewsets, permissions, status, filters
 from rest_framework.exceptions import ValidationError
 from rest_framework.generics import GenericAPIView
 from rest_framework.pagination import PageNumberPagination
@@ -143,6 +143,12 @@ class UserViewSet(BaseModelViewSet):
     serializer_class = UserSerializer
     permission_classes = [permissions.IsAuthenticated]
 
+    def __init__(self, **kwargs):
+        super(UserViewSet, self).__init__(**kwargs)
+        self.filter_backends = [filters.SearchFilter]
+        self.search_fields = ['username']
+        self.filterset_fields = []
+
     def filter_queryset(self, queryset):
         queryset = super(UserViewSet, self).filter_queryset(queryset)
         if self.request.user.role == Constant.ROLE_ADMIN:
@@ -152,6 +158,9 @@ class UserViewSet(BaseModelViewSet):
         if self.request.user.role == Constant.ROLE_READER:
             queryset = queryset.filter(role=Constant.ROLE_READER)
         return queryset
+
+    def list(self, request, *args, **kwargs):
+        return super(UserViewSet, self).list(self, request, *args, **kwargs)
 
     def perform_create(self, serializer):
         if serializer.validated_data['role'] == Constant.ROLE_ADMIN:
